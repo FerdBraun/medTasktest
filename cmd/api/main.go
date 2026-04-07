@@ -15,6 +15,7 @@ import (
 	transporthttp "example.com/taskservice/internal/transport/http"
 	swaggerdocs "example.com/taskservice/internal/transport/http/docs"
 	httphandlers "example.com/taskservice/internal/transport/http/handlers"
+	uihandlers "example.com/taskservice/internal/transport/http/ui"
 	"example.com/taskservice/internal/usecase/task"
 )
 
@@ -39,7 +40,8 @@ func main() {
 	taskUsecase := task.NewService(taskRepo)
 	taskHandler := httphandlers.NewTaskHandler(taskUsecase)
 	docsHandler := swaggerdocs.NewHandler()
-	router := transporthttp.NewRouter(taskHandler, docsHandler)
+	uiHandler := uihandlers.NewHandler()
+	router := transporthttp.NewRouter(taskHandler, docsHandler, uiHandler)
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,

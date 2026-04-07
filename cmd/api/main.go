@@ -36,6 +36,11 @@ func main() {
 	}
 	defer pool.Close()
 
+	if err := infrastructurepostgres.Migrate(ctx, pool, logger); err != nil {
+		logger.Error("run migrations", "error", err)
+		os.Exit(1)
+	}
+
 	taskRepo := postgresrepo.New(pool)
 	taskUsecase := task.NewService(taskRepo)
 	taskHandler := httphandlers.NewTaskHandler(taskUsecase)

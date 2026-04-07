@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
-
 	taskdomain "example.com/taskservice/internal/domain/task"
 	taskusecase "example.com/taskservice/internal/usecase/task"
 )
@@ -27,10 +28,14 @@ func (h *TaskHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created, err := h.usecase.Create(r.Context(), taskusecase.CreateInput{
-		Title:       req.Title,
-		Description: req.Description,
-		Status:      req.Status,
+	ctx := enrichContextWithDebugTime(r)
+
+	created, err := h.usecase.Create(ctx, taskusecase.CreateInput{
+		Title:            req.Title,
+		Description:      req.Description,
+		Status:           req.Status,
+		PeriodicityType:  req.PeriodicityType,
+		PeriodicityValue: req.PeriodicityValue,
 	})
 	if err != nil {
 		writeUsecaseError(w, err)
@@ -47,7 +52,9 @@ func (h *TaskHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.usecase.GetByID(r.Context(), id)
+	ctx := enrichContextWithDebugTime(r)
+
+	task, err := h.usecase.GetByID(ctx, id)
 	if err != nil {
 		writeUsecaseError(w, err)
 		return
@@ -69,10 +76,14 @@ func (h *TaskHandler) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	updated, err := h.usecase.Update(r.Context(), id, taskusecase.UpdateInput{
-		Title:       req.Title,
-		Description: req.Description,
-		Status:      req.Status,
+	ctx := enrichContextWithDebugTime(r)
+
+	updated, err := h.usecase.Update(ctx, id, taskusecase.UpdateInput{
+		Title:            req.Title,
+		Description:      req.Description,
+		Status:           req.Status,
+		PeriodicityType:  req.PeriodicityType,
+		PeriodicityValue: req.PeriodicityValue,
 	})
 	if err != nil {
 		writeUsecaseError(w, err)
@@ -98,7 +109,8 @@ func (h *TaskHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *TaskHandler) List(w http.ResponseWriter, r *http.Request) {
-	tasks, err := h.usecase.List(r.Context())
+	ctx := enrichContextWithDebugTime(r)
+	tasks, err := h.usecase.List(ctx)
 	if err != nil {
 		writeUsecaseError(w, err)
 		return
@@ -163,4 +175,19 @@ func writeJSON(w http.ResponseWriter, status int, payload any) {
 	w.WriteHeader(status)
 
 	_ = json.NewEncoder(w).Encode(payload)
+}
+
+func enrichContextWithDebugTime(r *http.Request) context.Context {
+	ctx := r.Context()
+	debugTime := r.Header.Get("X-Debug-Time")
+	if debugTime == "" {
+		return ctx
+	}
+
+	t, err := time.Parse(time.RFC3339, debugTime)
+	if err != nil {
+		return ctx
+	}
+
+	return context.WithValue(ctx, taskusecase.MockTimeKey, t)
 }

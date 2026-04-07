@@ -169,6 +169,15 @@
             "type": "string",
             "enum": ["new", "in_progress", "done"],
             "example": "new"
+          },
+          "periodicity_type": {
+            "type": "string",
+            "enum": ["no", "day", "month", "date", "odd"],
+            "example": "day"
+          },
+          "periodicity_value": {
+            "type": "string",
+            "example": "3"
           }
         }
       },
@@ -188,6 +197,15 @@
             "type": "string",
             "enum": ["new", "in_progress", "done"],
             "example": "in_progress"
+          },
+          "periodicity_type": {
+            "type": "string",
+            "enum": ["no", "day", "month", "date", "odd"],
+            "example": "day"
+          },
+          "periodicity_value": {
+            "type": "string",
+            "example": "3"
           }
         }
       },

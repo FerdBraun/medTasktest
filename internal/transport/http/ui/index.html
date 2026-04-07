@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,61 +8,119 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .task-card { transition: all 0.2s ease-in-out; }
-        .task-card:hover { transform: translateY(-2px); }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .task-card {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
+
 <body class="p-4 md:p-8">
     <div class="max-w-4xl mx-auto">
-        <header class="mb-8 flex justify-between items-center">
+        <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-900 leading-tight">Task Manager</h1>
-                <p class="text-slate-500">Simple UI for managing your daily tasks.</p>
+                <p class="text-slate-500">Simple UI for managing medical tasks with periodicity.</p>
             </div>
-            <button onclick="toggleModal(true)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors shadow-sm">
-                + New Task
-            </button>
+            <div class="flex flex-col items-end gap-2">
+                <div class="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">System Time Override</label>
+                    <input type="datetime-local" id="mock-time" onchange="fetchTasks()"
+                        class="text-xs border-none focus:ring-0 cursor-pointer">
+                    <button onclick="resetTime()"
+                        class="text-[10px] text-indigo-600 font-bold hover:underline">RESET</button>
+                </div>
+                <button onclick="toggleModal(true)"
+                    class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-medium transition-colors shadow-sm">
+                    + New Task
+                </button>
+            </div>
         </header>
 
         <!-- Task List Container -->
-        <div id="task-list" class="grid gap-4">
+        <div id="task-list" class="grid gap-3">
             <!-- Tasks will be loaded here -->
-            <div class="animate-pulse bg-white p-6 rounded-xl border border-slate-200">
-                <div class="h-4 bg-slate-200 rounded w-1/4 mb-4"></div>
-                <div class="h-3 bg-slate-100 rounded w-full mb-2"></div>
-                <div class="h-3 bg-slate-100 rounded w-5/6"></div>
-            </div>
         </div>
     </div>
 
     <!-- Modal for Create/Edit -->
-    <div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div class="p-6 border-b border-slate-100">
-                <h2 id="modal-title" class="text-xl font-semibold text-slate-900">Create Task</h2>
+    <div id="modal"
+        class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div
+            class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h2 id="modal-title" class="text-lg font-semibold text-slate-900">Create Task</h2>
+                <button onclick="toggleModal(false)"
+                    class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
             </div>
             <form id="task-form" class="p-6 space-y-4">
                 <input type="hidden" id="task-id">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Title</label>
-                    <input type="text" id="title" required class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                    <input type="text" id="title" required
+                        class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                    <textarea id="description" rows="3" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"></textarea>
+                    <textarea id="description" rows="2"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"></textarea>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                    <select id="status" class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white">
+                    <select id="status"
+                        class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white">
                         <option value="new">New</option>
                         <option value="in_progress">In Progress</option>
                         <option value="done">Done</option>
                     </select>
                 </div>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <h3 class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="text-indigo-500">
+                            <path d="m3 2 1.9 1.9a9 9 0 1 0 12.8 12.8L22 22" />
+                            <path d="M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                            <path d="M11 8a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
+                        </svg>
+                        Periodicity Settings
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase">Type</label>
+                            <select id="periodicity_type" onchange="updatePeriodicityValueLabel()"
+                                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                                <option value="no">None</option>
+                                <option value="day">Daily</option>
+                                <option value="month">Monthly</option>
+                                <option value="date">Specific Dates</option>
+                                <option value="odd">Even/Odd</option>
+                            </select>
+                        </div>
+                        <div id="periodicity_value_container">
+                            <label id="periodicity_value_label"
+                                class="block text-xs font-medium text-slate-400 mb-1 uppercase">Value</label>
+                            <input type="text" id="periodicity_value" placeholder="..."
+                                class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="pt-4 flex gap-3">
-                    <button type="button" onclick="toggleModal(false)" class="flex-1 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium transition-colors">Cancel</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors shadow-sm">Save Task</button>
+                    <button type="button" onclick="toggleModal(false)"
+                        class="flex-1 px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg font-medium transition-colors">Cancel</button>
+                    <button type="submit"
+                        class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 shadow-sm transition-all">Save
+                        Task</button>
                 </div>
             </form>
         </div>
@@ -72,117 +131,151 @@
         const taskList = document.getElementById('task-list');
         const taskForm = document.getElementById('task-form');
         const modal = document.getElementById('modal');
-        const modalTitle = document.getElementById('modal-title');
+        const mockTimeInput = document.getElementById('mock-time');
+
+        function getMockTime() {
+            if (!mockTimeInput.value) return null;
+            return new Date(mockTimeInput.value).toISOString();
+        }
+
+        function resetTime() {
+            mockTimeInput.value = '';
+            fetchTasks();
+        }
 
         async function fetchTasks() {
+            const headers = {};
+            const mockTime = getMockTime();
+            if (mockTime) headers['X-Debug-Time'] = mockTime;
+
             try {
-                const response = await fetch(API_BASE);
+                const response = await fetch(API_BASE, { headers });
                 const tasks = await response.json() || [];
                 renderTasks(tasks);
             } catch (error) {
                 console.error('Error fetching tasks:', error);
-                taskList.innerHTML = '<div class="text-red-500 p-4 bg-red-50 rounded-lg">Failed to load tasks. Check console for details.</div>';
             }
         }
 
         function renderTasks(tasks) {
-            if (tasks.length === 0) {
-                taskList.innerHTML = `
-                    <div class="text-center py-12 bg-white rounded-xl border border-dashed border-slate-300">
-                        <p class="text-slate-400">No tasks found. Create your first one!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            taskList.innerHTML = tasks.map(task => `
-                <div class="task-card bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            taskList.innerHTML = tasks.length === 0
+                ? '<div class="text-center py-10 bg-white rounded-xl border border-dashed border-slate-200 text-slate-400">No tasks found.</div>'
+                : tasks.map(task => `
+                <div class="task-card bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-1">
+                        <div class="flex items-center gap-2 mb-1">
                             <h3 class="font-semibold text-slate-900">${task.title}</h3>
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusClasses(task.status)} uppercase tracking-wider">
-                                ${task.status.replace('_', ' ')}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${getStatusClasses(task.status)} uppercase font-mono">
+                                ${task.status}
                             </span>
+                            ${task.periodicity_type !== 'no' ? `
+                                <span class="text-[10px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded font-bold border border-indigo-100 uppercase">
+                                    ${task.periodicity_type}: ${task.periodicity_value}
+                                </span>
+                            ` : ''}
                         </div>
-                        <p class="text-slate-600 text-sm line-clamp-2">${task.description || 'No description'}</p>
+                        <p class="text-slate-500 text-xs">${task.description || 'No description'}</p>
+                        ${task.last_completed_at ? `<p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">Done: ${new Date(task.last_completed_at).toLocaleString()}</p>` : ''}
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="editTask(${task.id})" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <div class="flex gap-2">
+                        <button onclick="editTask(${task.id})" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
-                        <button onclick="deleteTask(${task.id})" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        <button onclick="deleteTask(${task.id})" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                         </button>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
         function getStatusClasses(status) {
-            switch(status) {
-                case 'new': return 'bg-blue-50 text-blue-600 border border-blue-100';
+            switch (status) {
+                case 'new': return 'bg-sky-50 text-sky-600 border border-sky-100';
                 case 'in_progress': return 'bg-amber-50 text-amber-600 border border-amber-100';
                 case 'done': return 'bg-emerald-50 text-emerald-600 border border-emerald-100';
-                default: return 'bg-slate-50 text-slate-600';
+                default: return 'bg-slate-50 text-slate-400';
+            }
+        }
+
+        function updatePeriodicityValueLabel() {
+            const type = document.getElementById('periodicity_type').value;
+            const container = document.getElementById('periodicity_value_container');
+            const label = document.getElementById('periodicity_value_label');
+            const input = document.getElementById('periodicity_value');
+
+            container.classList.toggle('hidden', type === 'no');
+            if (type === 'no') return;
+
+            switch (type) {
+                case 'day': label.textContent = 'Interval'; input.placeholder = 'e.g. 1 (Daily)'; break;
+                case 'month': label.textContent = 'Day (1-30)'; input.placeholder = 'e.g. 15'; break;
+                case 'date': label.textContent = 'Dates'; input.placeholder = 'YYYY-MM-DD,...'; break;
+                case 'odd': label.textContent = 'Parity'; input.placeholder = '"even" or "odd"'; break;
             }
         }
 
         function toggleModal(show, title = 'Create Task') {
             modal.classList.toggle('hidden', !show);
-            modalTitle.textContent = title;
-            if (!show) taskForm.reset();
+            if (!show) {
+                taskForm.reset();
+                document.getElementById('task-id').value = '';
+                updatePeriodicityValueLabel();
+            } else {
+                document.getElementById('modal-title').textContent = title;
+            }
         }
 
         async function editTask(id) {
+            const headers = {};
+            const mockTime = getMockTime();
+            if (mockTime) headers['X-Debug-Time'] = mockTime;
+
             try {
-                const response = await fetch(`${API_BASE}/${id}`);
+                const response = await fetch(`${API_BASE}/${id}`, { headers });
                 const task = await response.json();
                 document.getElementById('task-id').value = task.id;
                 document.getElementById('title').value = task.title;
                 document.getElementById('description').value = task.description;
                 document.getElementById('status').value = task.status;
+                document.getElementById('periodicity_type').value = task.periodicity_type;
+                document.getElementById('periodicity_value').value = task.periodicity_value || '';
+                updatePeriodicityValueLabel();
                 toggleModal(true, 'Edit Task');
-            } catch (error) {
-                console.error('Error fetching task details:', error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         async function deleteTask(id) {
-            if (!confirm('Are you sure you want to delete this task?')) return;
-            try {
-                await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-                fetchTasks();
-            } catch (error) {
-                console.error('Error deleting task:', error);
-            }
+            if (!confirm('Delete task?')) return;
+            await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            fetchTasks();
         }
 
         taskForm.onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('task-id').value;
+            const headers = { 'Content-Type': 'application/json' };
+            const mockTime = getMockTime();
+            if (mockTime) headers['X-Debug-Time'] = mockTime;
+
             const data = {
                 title: document.getElementById('title').value,
                 description: document.getElementById('description').value,
-                status: document.getElementById('status').value
+                status: document.getElementById('status').value,
+                periodicity_type: document.getElementById('periodicity_type').value,
+                periodicity_value: document.getElementById('periodicity_value').value
             };
 
-            try {
-                const method = id ? 'PUT' : 'POST';
-                const url = id ? `${API_BASE}/${id}` : API_BASE;
-                await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                toggleModal(false);
-                fetchTasks();
-            } catch (error) {
-                console.error('Error saving task:', error);
-            }
+            await fetch(id ? `${API_BASE}/${id}` : API_BASE, {
+                method: id ? 'PUT' : 'POST',
+                headers,
+                body: JSON.stringify(data)
+            });
+            toggleModal(false);
+            fetchTasks();
         };
 
-        // Initial load
         fetchTasks();
     </script>
 </body>
+
 </html>
